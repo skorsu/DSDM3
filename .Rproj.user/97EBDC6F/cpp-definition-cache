@@ -1,0 +1,229 @@
+[
+    {
+        "file": "/Users/kevin-imac/Desktop/Github - Repo/DSDM3/src/main.cpp",
+        "file_last_write": 1722222310.0,
+        "definitions": [
+            {
+                "usr": "c:main.cpp@73@macro@pi",
+                "kind": 9,
+                "parent_name": "",
+                "name": "pi",
+                "file": "/Users/kevin-imac/Desktop/Github - Repo/DSDM3/src/main.cpp",
+                "line": 5,
+                "column": 9,
+                "hidden": false
+            },
+            {
+                "usr": "c:@F@rmultinom_1#&$@N@arma@S@Col>#d#",
+                "kind": 6,
+                "parent_name": "",
+                "name": "rmultinom_1(arma::vec &)",
+                "file": "/Users/kevin-imac/Desktop/Github - Repo/DSDM3/src/main.cpp",
+                "line": 8,
+                "column": 11,
+                "hidden": false
+            },
+            {
+                "usr": "c:@F@log_sum_exp#$@N@arma@S@Col>#d#",
+                "kind": 6,
+                "parent_name": "",
+                "name": "log_sum_exp(arma::vec)",
+                "file": "/Users/kevin-imac/Desktop/Github - Repo/DSDM3/src/main.cpp",
+                "line": 25,
+                "column": 11,
+                "hidden": false
+            },
+            {
+                "usr": "c:@F@log_marginal#$@N@arma@S@Col>#d#S0_#S0_#",
+                "kind": 6,
+                "parent_name": "",
+                "name": "log_marginal(arma::vec, arma::vec, arma::vec)",
+                "file": "/Users/kevin-imac/Desktop/Github - Repo/DSDM3/src/main.cpp",
+                "line": 49,
+                "column": 8,
+                "hidden": false
+            },
+            {
+                "usr": "c:@F@logmar_ik#$@N@arma@S@Row>#d#S0_#S0_#",
+                "kind": 6,
+                "parent_name": "",
+                "name": "logmar_ik(arma::rowvec, arma::rowvec, arma::rowvec)",
+                "file": "/Users/kevin-imac/Desktop/Github - Repo/DSDM3/src/main.cpp",
+                "line": 68,
+                "column": 8,
+                "hidden": false
+            },
+            {
+                "usr": "c:@F@logmar_k#$@N@arma@S@Mat>#d#S0_#$@N@arma@S@Row>#d#",
+                "kind": 6,
+                "parent_name": "",
+                "name": "logmar_k(arma::mat, arma::mat, arma::rowvec)",
+                "file": "/Users/kevin-imac/Desktop/Github - Repo/DSDM3/src/main.cpp",
+                "line": 93,
+                "column": 11,
+                "hidden": false
+            },
+            {
+                "usr": "c:@F@logmar#$@N@arma@S@Mat>#d#S0_#S0_#",
+                "kind": 6,
+                "parent_name": "",
+                "name": "logmar(arma::mat, arma::mat, arma::mat)",
+                "file": "/Users/kevin-imac/Desktop/Github - Repo/DSDM3/src/main.cpp",
+                "line": 121,
+                "column": 11,
+                "hidden": false
+            },
+            {
+                "usr": "c:@F@log_atrisk#$@N@arma@S@Row>#d#S0_#S0_#d#d#",
+                "kind": 6,
+                "parent_name": "",
+                "name": "log_atrisk(arma::rowvec, arma::rowvec, arma::rowvec, double, double)",
+                "file": "/Users/kevin-imac/Desktop/Github - Repo/DSDM3/src/main.cpp",
+                "line": 157,
+                "column": 8,
+                "hidden": false
+            },
+            {
+                "usr": "c:@F@launch_mcmc#$@N@arma@S@Mat>#d#S0_#S0_#$@N@arma@S@Col>#i#i#S1_#S1_#$@N@arma@S@Col>#d#",
+                "kind": 6,
+                "parent_name": "",
+                "name": "launch_mcmc(arma::mat, arma::mat, arma::mat, arma::uvec, unsigned int, arma::uvec, arma::uvec, arma::vec)",
+                "file": "/Users/kevin-imac/Desktop/Github - Repo/DSDM3/src/main.cpp",
+                "line": 172,
+                "column": 12,
+                "hidden": false
+            },
+            {
+                "usr": "c:@F@log_proposal#$@N@arma@S@Mat>#d#S0_#S0_#$@N@arma@S@Col>#i#S1_#S1_#S1_#",
+                "kind": 6,
+                "parent_name": "",
+                "name": "log_proposal(arma::mat, arma::mat, arma::mat, arma::uvec, arma::uvec, arma::uvec, arma::uvec)",
+                "file": "/Users/kevin-imac/Desktop/Github - Repo/DSDM3/src/main.cpp",
+                "line": 215,
+                "column": 8,
+                "hidden": false
+            },
+            {
+                "usr": "c:@F@split_beta#i#i#i#$@N@arma@S@Mat>#d#d#d#",
+                "kind": 6,
+                "parent_name": "",
+                "name": "split_beta(unsigned int, unsigned int, unsigned int, arma::mat, double, double)",
+                "file": "/Users/kevin-imac/Desktop/Github - Repo/DSDM3/src/main.cpp",
+                "line": 257,
+                "column": 11,
+                "hidden": false
+            },
+            {
+                "usr": "c:@F@update_atrisk#$@N@arma@S@Mat>#d#S0_#S0_#$@N@arma@S@Col>#i#d#d#",
+                "kind": 6,
+                "parent_name": "",
+                "name": "update_atrisk(arma::mat, arma::mat, arma::mat, arma::uvec, double, double)",
+                "file": "/Users/kevin-imac/Desktop/Github - Repo/DSDM3/src/main.cpp",
+                "line": 282,
+                "column": 11,
+                "hidden": false
+            },
+            {
+                "usr": "c:@F@update_beta#$@N@arma@S@Mat>#d#S0_#S0_#$@N@arma@S@Col>#i#d#d#d#",
+                "kind": 6,
+                "parent_name": "",
+                "name": "update_beta(arma::mat, arma::mat, arma::mat, arma::uvec, double, double, double)",
+                "file": "/Users/kevin-imac/Desktop/Github - Repo/DSDM3/src/main.cpp",
+                "line": 322,
+                "column": 12,
+                "hidden": false
+            },
+            {
+                "usr": "c:@F@update_beta_adaptive#i#i#$@N@arma@S@Mat>#d#S0_#$@N@arma@S@Cube>#d#S0_#$@N@arma@S@Col>#i#d#d#d#",
+                "kind": 6,
+                "parent_name": "",
+                "name": "update_beta_adaptive(unsigned int, unsigned int, arma::mat, arma::mat, arma::cube, arma::mat, arma::uvec, double, double, double)",
+                "file": "/Users/kevin-imac/Desktop/Github - Repo/DSDM3/src/main.cpp",
+                "line": 371,
+                "column": 12,
+                "hidden": false
+            },
+            {
+                "usr": "c:@F@realloc_full#i#$@N@arma@S@Mat>#d#S0_#S0_#$@N@arma@S@Col>#i#d#",
+                "kind": 6,
+                "parent_name": "",
+                "name": "realloc_full(unsigned int, arma::mat, arma::mat, arma::mat, arma::uvec, double)",
+                "file": "/Users/kevin-imac/Desktop/Github - Repo/DSDM3/src/main.cpp",
+                "line": 434,
+                "column": 12,
+                "hidden": false
+            },
+            {
+                "usr": "c:@F@sm#i#i#$@N@arma@S@Mat>#d#S0_#S0_#$@N@arma@S@Col>#i#d#d#d#i#d#d#",
+                "kind": 6,
+                "parent_name": "",
+                "name": "sm(unsigned int, unsigned int, arma::mat, arma::mat, arma::mat, arma::uvec, double, double, double, unsigned int, double, double)",
+                "file": "/Users/kevin-imac/Desktop/Github - Repo/DSDM3/src/main.cpp",
+                "line": 477,
+                "column": 12,
+                "hidden": false
+            },
+            {
+                "usr": "c:@F@mod#i#i#i#$@N@arma@S@Mat>#d#S0_#S0_#$@N@arma@S@Col>#i#d#d#d#d#i#d#d#d#d#i#",
+                "kind": 6,
+                "parent_name": "",
+                "name": "mod(unsigned int, unsigned int, unsigned int, arma::mat, arma::mat, arma::mat, arma::uvec, double, double, double, double, unsigned int, double, double, double, double, unsigned int)",
+                "file": "/Users/kevin-imac/Desktop/Github - Repo/DSDM3/src/main.cpp",
+                "line": 644,
+                "column": 12,
+                "hidden": false
+            },
+            {
+                "usr": "c:@F@mod_adaptive#i#i#i#$@N@arma@S@Mat>#d#S0_#S0_#$@N@arma@S@Col>#i#d#d#d#d#i#i#d#d#d#d#i#",
+                "kind": 6,
+                "parent_name": "",
+                "name": "mod_adaptive(unsigned int, unsigned int, unsigned int, arma::mat, arma::mat, arma::mat, arma::uvec, double, double, double, double, unsigned int, unsigned int, double, double, double, double, unsigned int)",
+                "file": "/Users/kevin-imac/Desktop/Github - Repo/DSDM3/src/main.cpp",
+                "line": 717,
+                "column": 12,
+                "hidden": false
+            },
+            {
+                "usr": "c:@F@realloc_dm#i#$@N@arma@S@Mat>#d#S0_#S0_#$@N@arma@S@Col>#i#d#",
+                "kind": 6,
+                "parent_name": "",
+                "name": "realloc_dm(unsigned int, arma::mat, arma::mat, arma::mat, arma::uvec, double)",
+                "file": "/Users/kevin-imac/Desktop/Github - Repo/DSDM3/src/main.cpp",
+                "line": 800,
+                "column": 12,
+                "hidden": false
+            },
+            {
+                "usr": "c:@F@DM_DM#i#i#$@N@arma@S@Mat>#d#S0_#$@N@arma@S@Col>#i#d#d#d#d#i#i#",
+                "kind": 6,
+                "parent_name": "",
+                "name": "DM_DM(unsigned int, unsigned int, arma::mat, arma::mat, arma::uvec, double, double, double, double, unsigned int, unsigned int)",
+                "file": "/Users/kevin-imac/Desktop/Github - Repo/DSDM3/src/main.cpp",
+                "line": 843,
+                "column": 12,
+                "hidden": false
+            },
+            {
+                "usr": "c:@F@DM_ZIDM#i#i#i#$@N@arma@S@Mat>#d#S0_#$@N@arma@S@Col>#i#d#d#d#d#i#i#d#d#i#",
+                "kind": 6,
+                "parent_name": "",
+                "name": "DM_ZIDM(unsigned int, unsigned int, unsigned int, arma::mat, arma::mat, arma::uvec, double, double, double, double, unsigned int, unsigned int, double, double, unsigned int)",
+                "file": "/Users/kevin-imac/Desktop/Github - Repo/DSDM3/src/main.cpp",
+                "line": 908,
+                "column": 12,
+                "hidden": false
+            },
+            {
+                "usr": "c:@F@ZIDM_DM#i#i#$@N@arma@S@Mat>#d#S0_#S0_#$@N@arma@S@Col>#i#d#d#d#d#i#d#d#i#",
+                "kind": 6,
+                "parent_name": "",
+                "name": "ZIDM_DM(unsigned int, unsigned int, arma::mat, arma::mat, arma::mat, arma::uvec, double, double, double, double, unsigned int, double, double, unsigned int)",
+                "file": "/Users/kevin-imac/Desktop/Github - Repo/DSDM3/src/main.cpp",
+                "line": 983,
+                "column": 12,
+                "hidden": false
+            }
+        ],
+        "hidden": false
+    }
+]
