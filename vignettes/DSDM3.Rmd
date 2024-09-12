@@ -17,12 +17,7 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup, include=FALSE}
-library(DSDM3)
-library(tidyverse)
-library(ggplot2)
-library(xtable)
-library(gridExtra)
-library(kableExtra)
+library( tidyverse )
 # library(Rcpp)
 # library(devtools)
 # uninstall(); compileAttributes(); build(); install(build_vignettes = TRUE)
@@ -31,6 +26,18 @@ library(kableExtra)
 # Introduction
 
 In this vignette, we demonstrate how to implement the discrete sparse Dirichlet-multinomial mixture model (DSDM$^3$) presented in "A Bayesian Semiparametric Mixture Model for Clustering Microbiome Data" by S Korsurat and MD Koslovsky. We start by providing guidance on how to simulate the data used in the simulation study of the main manuscript. We then demonstrate how to apply the model to both the simulated data and the HIV data featured in the application study. 
+
+# Required Libraries
+
+Below are the required packages used in this vignette.
+
+```{r, warning=FALSE}
+library( DSDM3 ) ## Our package.
+library( ggplot2 ) ## For creating the heatmap visualizing the simulated data.
+library( gridExtra ) ## For creating the heatmap visualizing the simulated data.
+library( xtable ) ## For generating the tables in this vignette.
+library( kableExtra ) ## For generating the tables in this vignette.
+```
 
 # Simulate Data
 
