@@ -688,41 +688,29 @@ namespace sampler{
       
       // Calculate log of acceptance probability
       logA += log_Vn( Kp_proposed - 1 );
-      logA += lgamma( nc_proposed( clus_sm_splitL( 0 ) - 1 ) );
-      logA += lgamma( nc_proposed( clus_sm_splitL( 1 ) - 1 ) );
+      logA += lgamma( nc_proposed( clus_sm_splitL( 0 ) - 1 ) + theta );
+      logA += lgamma( nc_proposed( clus_sm_splitL( 1 ) - 1 ) + theta );
       logA -= ( 2 * log( theta ) );
       logA += helper::ldnormARMA( proposed_xi.row( clus_sm_splitL( 0 ) - 1 ), mu_prior, s2_prior, J );
       logA += helper::ldnormARMA( proposed_xi.row( clus_sm_splitL( 1 ) - 1 ), mu_prior, s2_prior, J );
-      
-      // std::cout << "logA1: " << logA << std::endl;
-      
+
       logA -= log_Vn( Kp - 1 );
-      logA -= lgamma( S.size() + 2 );
+      logA -= lgamma( S.size() + 2 + theta );
       logA += log( theta );
       logA -= helper::ldnormARMA( current_xi.row( clus_sm_init( 0 ) - 1 ), mu_prior, s2_prior, J );
-      
-      // std::cout << "logA2: " << logA << std::endl;
       
       for( int i = 0; i < n; ++i ){
         logA += helper::logmar_data( z.row( i ), at_risk.row( i ), proposed_xi.row( proposed_c( i ) - 1 ) );
         logA -= helper::logmar_data( z.row( i ), at_risk.row( i ), current_xi.row( current_c( i ) - 1 ) );
       }
       
-      // std::cout << "logA3: " << logA << std::endl;
-      
       logA -= helper::log_probGS_c( proposed_c, splitL_c, nc_splitL, proposed_xi, z, at_risk, S, clus_sm_splitL );
-      
-      // std::cout << "logA ( log_probGS_c ): " << logA << std::endl;
       
       logA += helper::log_probGS_xi_k( current_xi.row( clus_sm_init( 0 ) - 1 ), mergeL_c, z, at_risk, mu_prior, s2_prior, clus_sm_init( 0 ), J );
       logA -= helper::log_probGS_xi_k( proposed_xi.row( clus_sm_splitL( 0 ) - 1 ), splitL_c, z, at_risk, mu_prior, s2_prior, clus_sm_splitL( 0 ), J );
       logA -= helper::log_probGS_xi_k( proposed_xi.row( clus_sm_splitL( 1 ) - 1 ), splitL_c, z, at_risk, mu_prior, s2_prior, clus_sm_splitL( 1 ), J );
       
-      // std::cout << "logA ( log_probGS_xi_k ): " << logA << std::endl;
-      
     } else { // If ci != cj, merge
-      
-      // std::cout << "clus_choose: " << clus_sm_init.t() << std::endl;
       
       sm_record( t ) = 0;
       
@@ -734,40 +722,26 @@ namespace sampler{
       
       // Calculate log of acceptance probability
       logA += log_Vn( Kp_proposed - 1 );
-      logA += lgamma( S.size() + 2 );
+      logA += lgamma( S.size() + 2 + theta );
       logA -= log( theta );
       logA += helper::ldnormARMA( proposed_xi.row( clus_int_merge( 0 ) - 1 ), mu_prior, s2_prior, J );
       
-      // std::cout << "logA_1: " << logA << std::endl;
-      
       logA -= log_Vn( Kp - 1 );
-      logA -= lgamma( nc( clus_sm_init( 0 ) - 1 ) );
-      logA -= lgamma( nc( clus_sm_init( 1 ) - 1 ) );
+      logA -= lgamma( nc( clus_sm_init( 0 ) - 1 ) + theta );
+      logA -= lgamma( nc( clus_sm_init( 1 ) - 1 ) + theta );
       logA += ( 2 * log( theta ) );
       logA -= helper::ldnormARMA( current_xi.row( clus_sm_init( 0 ) - 1 ), mu_prior, s2_prior, J );
-      logA -= helper::ldnormARMA( current_xi.row( clus_sm_init( 0 ) - 1 ), mu_prior, s2_prior, J );
-      
-      // std::cout << "logA_2: " << logA << std::endl;
-      
+      logA -= helper::ldnormARMA( current_xi.row( clus_sm_init( 1 ) - 1 ), mu_prior, s2_prior, J );
+
       for( int i = 0; i < n; ++i ){
         logA += helper::logmar_data( z.row( i ), at_risk.row( i ), proposed_xi.row( proposed_c( i ) - 1 ) );
         logA -= helper::logmar_data( z.row( i ), at_risk.row( i ), current_xi.row( current_c( i ) - 1 ) );
       }
       
-      // std::cout << "logA_3: " << logA << std::endl;
-      
       logA += helper::log_probGS_c( current_c, splitL_c, nc_splitL, current_xi, z, at_risk, S, clus_sm_init );
-      
-      // std::cout << "logA (log_probGS_c): " << logA << std::endl;
-      
       logA += helper::log_probGS_xi_k( current_xi.row( clus_sm_init( 0 ) - 1 ), splitL_c, z, at_risk, mu_prior, s2_prior, clus_sm_init( 0 ), J );
       logA += helper::log_probGS_xi_k( current_xi.row( clus_sm_init( 1 ) - 1 ), splitL_c, z, at_risk, mu_prior, s2_prior, clus_sm_init( 1 ), J );
-      
-      // std::cout << "logA ( + log_probGS_xi_k ): " << logA << std::endl;
-      
       logA -= helper::log_probGS_xi_k( proposed_xi.row( clus_sm_mergeL( 0 ) - 1 ), mergeL_c, z, at_risk, mu_prior, s2_prior, clus_sm_mergeL( 0 ), J );
-      
-      // std::cout << "logA ( - log_probGS_xi_k ): " << logA << std::endl;
       
     }
     
