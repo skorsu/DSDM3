@@ -69,6 +69,30 @@ namespace helper {
     
   }
 
+  double logmar_data_DM( const arma::rowvec zi, 
+                         const arma::rowvec xi_k ) {
+    
+    // Define new variables
+    arma::rowvec beta = exp( xi_k ); // Define beta = exp( xi )
+    
+    double lm = 0.0;
+    
+    // Data part
+    lm += lgamma( accu( zi ) + 1 );
+    lm -= accu( lgamma( zi + 1 ) );
+    
+    // Dirichlet Part
+    lm += lgamma( accu( beta ) );
+    lm -= accu( lgamma( beta ) );
+    
+    // Dirichlet Integral Part
+    lm += accu( lgamma( beta + zi ) );
+    lm -= lgamma( accu( beta + zi ) );
+    
+    return lm;
+    
+  }
+
   double sum_loglik_k( const arma::mat z_k, 
                        const arma::mat at_risk_k, 
                        const arma::rowvec xi_k,
@@ -208,6 +232,46 @@ namespace sampler{
         
       }
 
+      p = helper::LSE_prob( log_p );
+      
+      c_new = helper::sample_arma( active_clus_list, p );
+      
+      Nk( c_new - 1 ) += 1;
+      c( i ) = c_new;
+      
+    }
+    
+  }
+
+  void step1A_DM( arma::vec& c,
+                  arma::vec& Nk,
+                  const arma::vec eta,
+                  const unsigned int K,
+                  const unsigned int N,
+                  const unsigned int J,
+                  const arma::mat z,
+                  const arma::mat xi ){
+    
+    // This function updates c and cluster size
+    
+    arma::vec active_clus_list = regspace( 1, K );
+    arma::vec log_p( K, fill::zeros );
+    arma::vec p( K, fill::zeros );
+    int c_new = 0;
+    
+    for( int i = 0; i < N; ++i ){
+      
+      Nk( c( i ) - 1 ) -= 1;
+      log_p.zeros();
+      p.zeros();
+      
+      for( int k = 0; k < K; ++k ){
+        
+        log_p( k ) += helper::logmar_data_DM( z.row( i ), xi.row( k ) );
+        log_p( k ) += log( eta( k ) );
+        
+      }
+      
       p = helper::LSE_prob( log_p );
       
       c_new = helper::sample_arma( active_clus_list, p );
@@ -417,45 +481,6 @@ namespace sampler{
     
   }
 
-  // int step3A_PY( const unsigned int Kp, 
-  //                const unsigned int Km,
-  //                const arma::vec log_pK,
-  //                const arma::vec Nk,
-  //                const double theta_PY,
-  //                const double sigma_PY ){ 
-  //   
-  //   // This function returns an updated K.
-  //   
-  //   // Placeholder
-  //   unsigned int n_Kp = Km - Kp + 1;
-  //   arma::vec Kp_list = regspace( Kp, Km );
-  //   arma::vec log_p( n_Kp, fill::zeros );
-  //   int k = 0;
-  //   arma::vec p( n_Kp, fill::zeros );
-  //   
-  //   // Calculate the constant of the EPPF of a PYM ( p.1290 from Fruhwirth-Schnatter ( 2021 ) ) 
-  //   arma::vec f_elem = regspace( 0, Kp - 1 );
-  //   f_elem *= sigma_PY;
-  //   f_elem += theta_PY;
-  //   arma::vec s_elem = lgamma( Nk.head( Kp ) - sigma_PY );
-  //   s_elem -= helper::lgamma_s( 1 - sigma_PY );
-  //   log_p.fill( accu( f_elem ) + accu( s_elem ) );
-  //   
-  //   // Calculate log P( k|C, gamma )
-  //   for( int ii = 0; ii < n_Kp; ++ii ){
-  //     
-  //     k = Kp_list( ii );
-  //     log_p( ii ) += log_pK( k - 1 );
-  //     
-  //   }
-  //   
-  //   // Applying LSE
-  //   p = helper::LSE_prob( log_p );
-  //   
-  //   // update K
-  //   return helper::sample_arma( Kp_list, p );
-  //   
-  // }
   
   double step3B( const double gm_current,
                  const arma::vec Nk,
@@ -857,6 +882,7 @@ void mod_fixed( arma::vec& c_init, // Initialization
                 arma::vec& K_vec, // Store the result
                 arma::mat& eta_mat, // Store the result
                 arma::cube& xi_cube,
+                arma::cube& ar_cube,
                 arma::vec& s2a_perform, // Step 2A: How many times that the model update xi_kj ( regardless the cluster and taxa )
                 arma::vec& s2a_accept ){ // Store the result
 
@@ -912,12 +938,261 @@ void mod_fixed( arma::vec& c_init, // Initialization
     if( ( ( it + 1 ) - floor( ( it + 1 ) / thin ) * thin ) == 0 ){
 
       xi_cube.slice( save_xi ) = xi_init;
+      ar_cube.slice( save_xi ) = ar_init;
       save_xi += 1;
 
     }
 
   }
 
+}
+
+// [[Rcpp::export]]
+void mod_fixed_DM_lik( arma::vec& c_init, // Initialization
+                       arma::mat& xi_init, // Initialization
+                       const arma::mat z,
+                       const unsigned int Km,
+                       const arma::vec log_pK,
+                       const arma::vec Mean_vec,
+                       const double s2_prior,
+                       const double s2_MH_xi,
+                       const double gm,
+                       const unsigned int iter,
+                       const double thin,
+                       arma::mat& c_mat, // Store the result
+                       arma::vec& Kp_vec, // Store the result
+                       arma::vec& K_vec, // Store the result
+                       arma::mat& eta_mat, // Store the result
+                       arma::cube& xi_cube,
+                       arma::vec& s2a_perform, // Step 2A: How many times that the model update xi_kj ( regardless the cluster and taxa )
+                       arma::vec& s2a_accept ){ // Store the result
+
+  unsigned int N = z.n_rows;
+  unsigned int J = z.n_cols;
+  unsigned int Kp = 0;
+  unsigned int K = 0;
+  int save_xi = 0;
+
+  // Obtain Nk and Kp from c_init
+  arma::vec Nk( Km, fill::zeros );
+  for( int k = 0; k < Km; ++k ){
+
+    Nk( k ) += accu( c_init == ( k + 1 ) );
+    Kp += ( Nk( k ) != 0 );
+
+  }
+
+  K = Kp;
+
+  arma::vec eta_init( Km, fill::zeros );
+  eta_init.head( K ).fill( 1 / static_cast< double >( K ) );
+  
+  arma::mat ar_init( N, J, fill::ones );
+
+  for( int it = 0; it < iter; ++it ){
+
+    // Step 1
+    if( K > 1 ){
+      sampler::step1A_DM( c_init, Nk, eta_init, K, N, J, z, xi_init );
+    }
+
+    Kp = sampler::step1B( c_init, xi_init, Nk, eta_init, N, J, Km );
+
+    // Step 2A
+    sampler::update_xi( xi_init, c_init, Kp, Nk, z, ar_init, J, Mean_vec, s2_prior, s2_MH_xi, s2a_perform, s2a_accept );
+
+    // Step 3
+    K = sampler::step3A( Kp, Km, log_pK, gm, N );
+
+    // Step 4
+    sampler::step4( xi_init, eta_init, gm, Nk, N, J, K, Kp, Km, Mean_vec, s2_prior );
+
+    // Record the result
+    Kp_vec( it ) = Kp;
+    K_vec( it ) = K;
+    c_mat.row( it ) = c_init.t();
+    eta_mat.row( it ) = eta_init.t();
+
+    if( ( ( it + 1 ) - floor( ( it + 1 ) / thin ) * thin ) == 0 ){
+
+      xi_cube.slice( save_xi ) = xi_init;
+      save_xi += 1;
+
+    }
+
+  }
+
+}
+
+// [[Rcpp::export]]
+void ZIDMDM( arma::vec& c_init, // Initialization
+             arma::mat& xi_init, // Initialization
+             const arma::mat z,
+             const arma::mat zero_loc,
+             const int K,
+             const arma::vec log_pK,
+             const arma::vec Mean_vec,
+             const double s2_prior,
+             const double a_ar,
+             const double b_ar,
+             const double s2_MH_xi,
+             const double gm,
+             const unsigned int iter,
+             const double thin,
+             arma::mat& c_mat, // Store the result
+             arma::vec& Kp_vec, // Store the result
+             arma::vec& K_vec, // Store the result
+             arma::mat& eta_mat, // Store the result
+             arma::cube& xi_cube,
+             arma::cube& ar_cube,
+             arma::vec& s2a_perform, // Step 2A: How many times that the model update xi_kj ( regardless the cluster and taxa )
+             arma::vec& s2a_accept ){ // Store the result
+  
+  unsigned int N = z.n_rows;
+  unsigned int J = z.n_cols;
+  unsigned int Kp = 0;
+  int n0 = zero_loc.n_rows;
+  int save_xi = 0;
+  
+  // Obtain Nk and Kp from c_init
+  arma::vec Nk( K, fill::zeros );
+  for( int k = 0; k < K; ++k ){
+    
+    Nk( k ) += accu( c_init == ( k + 1 ) );
+    Kp += ( Nk( k ) != 0 );
+    
+  }
+  
+  arma::mat ar_init( N, J, fill::ones );
+  arma::vec eta_init( K, fill::zeros );
+  eta_init.head( K ).fill( 1 / static_cast< double >( K ) );
+  
+  for( int it = 0; it < iter; ++it ){
+    
+    // Step 1
+    if( K > 1 ){
+      sampler::step1A( c_init, Nk, eta_init, K, N, J, z, ar_init, xi_init );
+    }
+    
+    Kp = sampler::step1B( c_init, xi_init, Nk, eta_init, N, J, K );
+    
+    // Step 2A
+    sampler::update_xi( xi_init, c_init, Kp, Nk, z, ar_init, J, Mean_vec, s2_prior, s2_MH_xi, s2a_perform, s2a_accept );
+    if( n0 > 0 ){
+      sampler::update_at_risk( ar_init, z, xi_init, c_init, a_ar, b_ar, zero_loc, n0 );
+    }
+    
+    // Step 4
+    sampler::step4( xi_init, eta_init, gm, Nk, N, J, K, Kp, K, Mean_vec, s2_prior );
+    
+    // Record the result
+    Kp_vec( it ) = Kp;
+    c_mat.row( it ) = c_init.t();
+    eta_mat.row( it ) = eta_init.t();
+    
+    if( ( ( it + 1 ) - floor( ( it + 1 ) / thin ) * thin ) == 0 ){
+      
+      xi_cube.slice( save_xi ) = xi_init;
+      ar_cube.slice( save_xi ) = ar_init;
+      save_xi += 1;
+      
+    }
+    
+  }
+  
+}
+
+// [[Rcpp::export]]
+void DMDM( arma::vec& c_init, // Initialization
+           arma::mat& xi_init, // Initialization
+           const arma::mat z,
+           const int K,
+           const arma::vec Mean_vec,
+           const double s2_prior,
+           const double s2_MH_xi,
+           const double gm,
+           const unsigned int iter,
+           const double thin,
+           arma::mat& c_mat, // Store the result
+           arma::vec& Kp_vec, // Store the result
+           arma::vec& K_vec, // Store the result
+           arma::mat& eta_mat, // Store the result
+           arma::cube& xi_cube,
+           arma::vec& s2a_perform, // Step 2A: How many times that the model update xi_kj ( regardless the cluster and taxa )
+           arma::vec& s2a_accept ){ // Store the result
+  
+  unsigned int N = z.n_rows;
+  unsigned int J = z.n_cols;
+  unsigned int Kp = 0;
+  int save_xi = 0;
+  
+  // Obtain Nk and Kp from c_init
+  arma::vec Nk( K, fill::zeros );
+  for( int k = 0; k < K; ++k ){
+    
+    Nk( k ) += accu( c_init == ( k + 1 ) );
+    Kp += ( Nk( k ) != 0 );
+    
+  }
+  
+  arma::mat ar_init( N, J, fill::ones );
+  arma::vec eta_init( K, fill::zeros );
+  eta_init.head( K ).fill( 1 / static_cast< double >( K ) );
+  
+  for( int it = 0; it < iter; ++it ){
+    
+    // Step 1
+    if( K > 1 ){
+      sampler::step1A_DM( c_init, Nk, eta_init, K, N, J, z, xi_init );
+    }
+    
+    Kp = sampler::step1B( c_init, xi_init, Nk, eta_init, N, J, K );
+    
+    // Step 2A
+    sampler::update_xi( xi_init, c_init, Kp, Nk, z, ar_init, J, Mean_vec, s2_prior, s2_MH_xi, s2a_perform, s2a_accept );
+    
+    // Step 4
+    sampler::step4( xi_init, eta_init, gm, Nk, N, J, K, Kp, K, Mean_vec, s2_prior );
+    
+    // Record the result
+    Kp_vec( it ) = Kp;
+    c_mat.row( it ) = c_init.t();
+    eta_mat.row( it ) = eta_init.t();
+    
+    if( ( ( it + 1 ) - floor( ( it + 1 ) / thin ) * thin ) == 0 ){
+      
+      xi_cube.slice( save_xi ) = xi_init;
+      save_xi += 1;
+      
+    }
+    
+  }
+  
+}
+
+// [[Rcpp::export]]
+double logmar_data_DM( const arma::rowvec zi, 
+                       const arma::rowvec xi_k ) {
+  
+  // Define new variables
+  arma::rowvec beta = exp( xi_k ); // Define beta = exp( xi )
+  
+  double lm = 0.0;
+  
+  // Data part
+  lm += lgamma( accu( zi ) + 1 );
+  lm -= accu( lgamma( zi + 1 ) );
+  
+  // Dirichlet Part
+  lm += lgamma( accu( beta ) );
+  lm -= accu( lgamma( beta ) );
+  
+  // Dirichlet Integral Part
+  lm += accu( lgamma( beta + zi ) );
+  lm -= lgamma( accu( beta + zi ) );
+  
+  return lm;
+  
 }
 
 // [[Rcpp::export]]
@@ -939,6 +1214,7 @@ void mod_fixed_PYP( arma::vec& c_init, // Initialization
                     arma::mat& c_mat, // Store the result
                     arma::vec& Kp_vec, // Store the result
                     arma::cube& xi_cube,
+                    arma::cube& ar_cube,
                     arma::vec& s2a_perform, // Step 2A: How many times that the model update xi_kj ( regardless the cluster and taxa )
                     arma::vec& s2a_accept ){ // Store the result
   
@@ -976,12 +1252,40 @@ void mod_fixed_PYP( arma::vec& c_init, // Initialization
     if( ( ( it + 1 ) - floor( ( it + 1 ) / thin ) * thin ) == 0 ){
        
       xi_cube.slice( save_xi ) = xi_init;
+      ar_cube.slice( save_xi ) = ar_init;
       save_xi += 1;
       
     }
     
   }
   
-} 
+}
+
+// [[Rcpp::export]]
+double logmar_data( const arma::rowvec zi, 
+                    const arma::rowvec at_risk_i, 
+                    const arma::rowvec xi_k ) {
+  
+  // Define new variables
+  arma::rowvec beta = exp( xi_k ); // Define beta = exp( xi )
+  arma::rowvec ar_beta = at_risk_i % beta;
+  
+  double lm = 0.0;
+  
+  // Data part
+  lm += lgamma( accu( zi ) + 1 );
+  lm -= accu( lgamma( zi + 1 ) );
+  
+  // Dirichlet Part
+  lm += lgamma( accu( ar_beta ) );
+  lm -= accu( at_risk_i % lgamma( beta ) );
+  
+  // Dirichlet Integral Part
+  lm += accu( at_risk_i % lgamma( beta + zi ) );
+  lm -= lgamma( accu( ar_beta + zi ) );
+  
+  return lm;
+  
+}
 
 
