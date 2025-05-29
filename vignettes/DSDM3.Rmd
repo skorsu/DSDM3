@@ -59,167 +59,116 @@ simdat_ZIDM <- sim_ZIDMclus( n1 = 25, n2 = 25, Jnoise = 80, Jsignal = 20,
 data( "simdat_ZIDM" )
 ```
 
-The `sim_ZIDMclus()` function requires the specification of several parameters: the number of observations for each cluster (`n1` and `n2`), the number of taxa that are not differentiated across clusters, or the noise taxa, (`Jnoise`), the number of taxa that are differentiated between clusters, or the signal taxa, (`Jsignal`), the sequencing depth for both noise and signal taxa (`z_sum_noise` and `z_sum_signal`, respectively), parameters controlling the behavior of at-risk and structural zeros (`a` and `pAR0`), and a random seed (`seed`). 
+The `sim_ZIDMclus()` function requires the specification of several parameters: the number of observations for each cluster (`n1` and `n2`), the number of taxa that are not differentiated across clusters, or the noise taxa, (`Jnoise`), the number of taxa that are differentiated between clusters, or the signal taxa, (`Jsignal`), the sequencing depth for both noise and signal taxa (`z_sum_noise` and `z_sum_signal`, respectively), parameters controlling the behavior of at-risk and structural zeros (`a` and `pAR0`), and a random seed (`seed`). The parameter `pAR0` defines the baseline probability that a zero count is considered at-risk when the expected relative abundance is zero, while `a` controls how this probability changes with abundance. Specifically, when smaller values of a (i.e., 0 < `a` < 1) make low-abundance taxa more likely to be treated as at-risk, whereas larger values (i.e., `a` > 1) make them more likely to be treated as structural zeros. The output from the `sim_clusDat()` function is a list consisting of three elements: (1) the simulated OTU table (`dat`), (2) the at-risk indicator (`ar`), and (3) the cluster allocation for each observation (`clus`). In this example, we simulate 50 observations—25 for each cluster—with a total of 100 taxa, 20 of which are designated as signal taxa. The sequencing depth for each observation is set to 5,000 reads, allocated as 4,000 reads for the noise taxa and 1,000 reads for the signal taxa. The parameter `pAR0` = 0.75 specifies that, when the expected marginal relative abundance is zero, the probability of a zero being considered at-risk is 0.75. Additionally, with `a` = 25, zeros are more likely to be treated as structural when the expected marginal relative abundance is high. 
 
-[paragraph explain how to control the at-risk and structual zero via a and pAR0]
+To visualize the simulated data (i.e., the OTU table), we can use the `vizDat()` function to create a heatmap that highlights patterns in the data. In the resulting plot, each row corresponds to an observation and each column to a taxon. The intensity of the color indicates the magnitude of the observed count—darker colors represent higher counts.
 
-Note that the `sim_clusDat()` function splits the observations into two clusters evenly. The output from the `sim_clusDat()` function is a list consisting of two elements: (1) the simulated OTU table (`dat`) and (2) the cluster allocation for each observation (`c`). In this case, we have simulated 100 observations with 200 taxa, 50 of which are considered signal taxa. In the simulated data set, we expect that around 35% of the counts are zero. The assumed sequencing depth for each observation is 15,000, with 12,500 for the noise taxa and 2,500 for the signal taxa.
-
-Note that there are six other default arguments, which are listed below:
-
-  - `shuffle`: This argument determines whether the order of observations should be shuffled. The default is `TRUE`. If set to `FALSE`, observations from the same cluster will be grouped together in the data set.
-  - `caseSignal`: This is a complexity index for the data generation, ranging from 1 to 5, where 1 is the most complex and 5 is the least complex. The default is 3.
-  - `aPhi`, `bPhi`, `aLambda`, and `bLambda`: These parameters are used to simulate the marginal probability for each signal taxa. The first $\lceil$`Jsignal`/2$\rceil$ signal taxa follow a Beta(`aPhi`, `bPhi`) distribution, while the remaining signal taxa follow a Beta(`aLambda`, `bLambda`) distribution. The details regarding how to use these values to differentiate between the two clusters are explained in the main manuscript under the Simulation Study section. These arguments are set to 1 by default.
-  
-  The code above can be used to generate more than two clusters in the data. For example, if we want to generate 200 observations with four different clusters, where the cluster sizes are 60, 60, 40, and 40, respectively, we can use the code below. See Figure 1 for a heatmap of the example data sets. 
-
-```{r, echo = FALSE, fig.cap = "Heatmaps of the Simulated Data. Left figure represents the simulated data set generated using the `sim_clusDat()` function to create 2 clusters and the right figure represents the simulated data set generated using the `sim_clusDat()` function to create 4 clusters.", fig.show = "hold",fig.height = 3}
-
-### 2 Clusters
-# simDat_Long <- data.frame(simDat$dat, i = 1:100) %>%
-#   pivot_longer(!i)
-# simDat_Long$i <- factor(simDat_Long$i, levels = sort(simDat$c, index.return = TRUE)$ix)
-# simDat_Long$name <- factor(simDat_Long$name, levels = paste0("X", 1:200))
-# p1 <- ggplot(simDat_Long, aes(x = name, y = i, fill = value)) +
-#   geom_tile() +
-#   scale_fill_gradient(low = "white", high = "red") +
-#   theme_bw() +
-#   theme(legend.position = "none", axis.text = element_blank(),
-#         axis.ticks = element_blank(),
-#         plot.title = element_text(hjust = 0.5)) +
-#   labs(x = "Observation", y = "Taxa", title = "Simulated data with two clusters")
-# 
-# ### 4 Clusters
-# simDat_Long_4c <- data.frame(simDat_4clus, i = 1:200) %>%
-#   pivot_longer(!i)
-# simDat_Long_4c$i <- factor(simDat_Long_4c$i, levels = sort(simDat_4clus_c, index.return = TRUE)$ix)
-# simDat_Long_4c$name <- factor(simDat_Long_4c$name, levels = paste0("X", 1:200))
-# p2 <- ggplot(simDat_Long_4c, aes(x = name, y = i, fill = value)) +
-#   geom_tile() +
-#   scale_fill_gradient(low = "white", high = "red") +
-#   theme_bw() +
-#   theme(legend.position = "none", axis.text = element_blank(),
-#         axis.ticks = element_blank(),
-#         plot.title = element_text(hjust = 0.5)) +
-#   labs(x = "Observation", y = "Taxa", title = "Simulated data with four clusters")
-# 
-# grid.arrange(p1, p2, nrow = 1)
+```{r, fig.cap = "Heatmap for the simulated data", fig.show = "hold"}
+### Visualize the data
+vizDat( otuTab = simdat_ZIDM$dat )
 ```
+
 
 # Implementation
 
-In this section, we demonstrate how to implement DSDM$^3$ on the simulated data using the `ZIDM_DSDM3()` function.
+In this section, we demonstrate how to implement DSDM$^3$ on the simulated data using the `DSDM3_ZIDM()` function.
 
 ```{r, eval=FALSE}
-# resultMod <- ZIDM_DSDM3( dat = simDat$dat, iter = 1500, Kmax = 10, nxi_split = 10, 
-#                          theta = 1, s2 = 0.1, s2MH = 1e-3, MHadapt = 500, 
-#                          thin = 1, seed = 1 )
+### Initialize and run the model
+result_ZIDM <- DSDM3_ZIDM( otuTab = simdat_ZIDM$dat, Km = 10, pi_TB = 0.5, 
+                           s2_prior = 0.1, s2_MH = 0.01, theta = 0.1, 
+                           a_gamma = 1, b_gamma = 1, Kp_init = 5, 
+                           s = 500, iter = 10000, thin = 1, seed = 10 )
 ```
 
-```{r, include=FALSE}
-# data("resultMod_vig")
-# resultMod <- resultMod_vig
-# rm(resultMod_vig)
+```{r, include=FALSE, warning=FALSE}
+data( "result_ZIDM" )
 ```
 
-This function requires us to specify the $N \times J$-dimensional OTU table, where each row represents an observation and each column represents a taxon  (`dat`), the number of MCMC iterations (`iter`), the number of potential components (`Kmax`), the number of concentration parameters proposed to change from the original cluster in a split step of the Split-Merge update (`nxi_split`), the sparsity concentration parameter (`theta`), the variance of the cluster concentration parameter (`s2`), the variance for the adaptive Metropolis-Hastings (AMH) step when updating the cluster concentration parameter (`s2MH`), the number of MCMC iterations run before using the adaptive proposal (`MHadapt`), the amount of thinning (`thin`), and the random seed (`seed`). Note that the `ZIDM_DSDM3()` function initializes all observations in the same cluster. In this example, we will apply the model to the simulated data from above (`simDat$dat`). We run the model for 15,000 iterations, where the first 500 iterations use a non-adaptive proposal for the AMH step. We set the variance of the cluster concentration parameter to 0.1 and the variance of the adaptive Metropolis-Hasting to $1 \times 10^{-3}$. We limit the clusters to no more than 10 (i.e., `Kmax` = 10). For the Split-Merge step, the proposed cluster concentration parameters are obtained by using the cluster concentration parameters corresponding to the original cluster with 10 random taxa having new cluster concentration parameters (i.e., `nxi_split` = 10). 
+This function requires the following inputs: the $N \times J$ OTU table (`otuTab`), where each row represents an observation and each column represents a taxon, the number of potential components (`Km`), the probability that a given cluster is active (`pi_TB`), the prior variance for the cluster concentration parameter (`s2_prior`), the variance used in the Metropolis–Hastings (MH) step when updating the cluster concentration parameter (`s2_MH`), the sparsity concentration parameter (`theta`), the parameters controlling the expected probability of being an at-risk zero (`a_gamma` and `b_gamma`), the initial number of clusters (`Kp_init`), the hypothetical total number of reads used to inform the prior (`s`), the number of MCMC iterations (`iter`), the thinning interval (`thin`), and the random seed (`seed`). In this example, we apply the model to the simulated data provided above (`simdat_ZIDM$dat`). The model is run for 10,000 iterations with no thinning (i.e., `thin` = 1). We set the variance of the cluster concentration parameter to 0.1 and the variance for the Metropolis–Hastings step to 0.01. The maximum number of clusters is limited to 10 (i.e., `Kmax` = 10). For at-risk zeros, we assume that the expected probability of a zero being considered at-risk is 0.5 (i.e., `a_gamma` = `b_gamma` = 1). For initialization, we start the model with five random clusters (i.e., `Kp_init` = 5) and assume 500 hypothetical total reads are used to inform the prior (i.e., `s` = 500).
 
-The output from the `ZIDM_DSDM3()` function is a list object. To obtain the final cluster assignment, we use the `finalCLUS()` function. For implementation, we need to specify the number of iterations to consider as burn-in. We utilize the `salso()` function from the `salso` package with the variation of information loss to determine the final cluster assignment [@salso].
+The output from the `DSDM3_ZIDM()` function is a list object. To obtain the final cluster assignment, we use the `final_clus()` function. For implementation, we need to specify the number of iterations to consider as burn-in. We utilize the `salso()` function from the `salso` package with the variation of information loss to determine the final cluster assignment [@salso].
 
 ```{r}
 ### Obtain a vector of the final cluster assignment.
-# clusResult <- finalCLUS( resultMod, burn_in = 500, seed = 1 )
+clusResult <- final_clus( resultList = result_ZIDM, burn_in = 1000, seed = 10 )
 ```
 
 ## Posterior Inference
 
-Prior to performing inference on the cluster allocation, we assess the convergence of the model by plotting the number of active clusters in each MCMC iteration using the `uniqueCLUS()` function (Figure 2). We observe that the model converges around iteration 750. 
+Prior to performing inference on the cluster allocation, we assess model convergence by plotting the number of active clusters and the component weights across MCMC iterations, as suggested by @fruhwirth2021generalized. The `diag_plot()` function produces plots for both the number of active clusters and the component weights, using the resulting list returned by our model. As shown in Figure 2 and 3, the model appears to converge around 1,000$^{\text{th}}$ iteration.
 
 ```{r}
-### Obtain a vector of the number of active cluster for each MCMC iteration.
-# clusMCMC <- uniqueCLUS( resultMod ) 
+### Obtain the diagnostic plots
+diagplot_ZIDM <- diag_plot( result_ZIDM ) 
 ```
 
-```{r, echo=FALSE, fig.cap = "Simulation Results: Trace plot for the number of active clusters in each MCMC iteration when the model is applied to the simulated data.", fig.show = "hold", fig.height = 3}
+```{r, echo=FALSE, fig.cap = "Simulation Results: Trace plot for the number of active clusters in each MCMC iteration when the model is applied to the simulated data.", fig.show = "hold"}
 
-### Create the plot for the active cluster via MCMC iteration
-# data.frame(clusMCMC, iter = 1:1500) %>%
-#   ggplot(aes(x = iter, y = clusMCMC)) +
-#   geom_line() +
-#   scale_y_continuous(breaks = seq(2, 10, 2), limits = c(1, 10)) +
-#   theme_bw() +
-#   labs(x = "MCMC Iteration", y = "Number of Active Clusters")
+diagplot_ZIDM$active_clus
+```
+
+```{r, echo=FALSE, fig.cap = "Simulation Results: Trace plot for the component weight in each MCMC iteration when the model is applied to the simulated data.", fig.show = "hold"}
+
+diagplot_ZIDM$comp_weight + theme( strip.text = element_text( size = 12, face = "bold" ),
+    axis.title = element_text( size = 12 ),
+    axis.text.y = element_text( size = 10 ),
+    axis.text.x = element_text( size = 8 ) )
 ```
 
 \newpage
 
-Next, we assess the performance of the resulting cluster allocation compared to the true cluster assignment (if applicable) using the Adjusted Rand Index (ARI) with the `ariCLUS()` function. ARI measures the similarity between two cluster assignment vectors, ranging from -1 to 1. The higher the ARI, the more similar the result to the truth. ARI below 0 indicates that the clustering result is worse than what would be expected by random chance.
+Next, we assess the performance of the resulting cluster allocation compared to the true cluster assignment (if applicable) using the Adjusted Rand Index (ARI) with the `ARI_clus()` function. ARI measures the similarity between two cluster assignment vectors, ranging from -1 to 1. The higher the ARI, the more similar the result to the truth. ARI below 0 indicates that the clustering result is worse than what would be expected by random chance.
 
 ```{r}
 ### Calculate the ARI
-# ariCLUS( clusResult, simDat$c )
+ARI_clus( resultList = result_ZIDM, truth = simdat_ZIDM$clus, burn_in = 1000, seed = 1 )
 ```
 
 We observe that the ARI equals 1, demonstrating that our model successfully differentiated between the two clusters.
 
 # Application Data
 
-In this section, we apply the proposed model to the HIV dataset analyzed in the main manuscript collected by @noguera2016gut, which can be accessed in the `selbal` package [@rivera2018balances].  We first load the data into the R environment. The first column represents the observation ID. The second and third columns represent the sexual behavior (i.e., whether the person identifies as a man who has sex with men; MSM) and HIV infection status for each observation, respectively. See Table 1 for an example of the metadata. After removing these three columns from the imported data set, we obtain a 155 $\times$ 60-dimensional OTU table for inference. 
+In this section, we apply the proposed model to the EDD dataset analyzed in the main manuscript, originally collected by @singh2015intestinal and made publicly available by @duvallet2017meta. We begin by loading the data into the R environment. The dataset is stored as a list object with three components: (1) `metadata`, which indicates whether each sample is from an EDD patient or a healthy control; (2) `genus`, the OTU table at the genus level after data cleaning; and (3) `de_novo`, the OTU table at the de novo level after data cleaning. In the main manuscript, we use the OTU table at the genus level, resulting in a 303 $\times$ 79-dimensional OTU table for inference. 
 
 ```{r}
 ### Import the data set
-# data( "selbalHIV" )
-# metaHIV <- selbalHIV[ , 1:3 ] ### Obtain the metadata
-# otuHIV <- selbalHIV[ , -(1:3) ] ### Obtain the OTU table
+data( "dat_EDD" )
 ```
 
-```{r, echo = FALSE, message=FALSE}
-# examMeta <- head(metaHIV)
-# rownames(examMeta) <- NULL
-# colnames(examMeta) <- c("ID", "Sexual Preference", "HIV Status")
-# 
-# xtable(examMeta, caption = "Example of the metadata for the HIV data set. The first column contains the observation ID, while the other two columns represent sexual behavior and HIV infection status, respectively.") %>%
-#   xtable2kable()
-```
-
-We then apply the proposed model to the HIV data, running the MCMC sampler for 25,000 MCMC iterations without thinning. We implement the AMH step after the first 2,500 iterations. The variance of the cluster concentration parameter is set to 1, and the variance of the AMH step is set to $1 \times 10^{-3}$. We limit the model to a maximum of 20 clusters. Additionally, if a split in the cluster space is proposed, the new cluster concentration parameters are derived from those of the original cluster, with 5 randomly selected taxa having different concentration parameters.
+We then apply the proposed model to the genus-level OTU table, running the MCMC sampler for 15,000 iterations with thinning every 2 iterations. The variance of the cluster concentration parameter is set to 10, and the variance for the MH step is set to 1. The model is limited to a maximum of 10 clusters. For at-risk zeros, we assume the expected probability of a zero being considered at-risk is 0.5. For initialization, the model begins with a single cluster containing all samples, and we assume 200 hypothetical total reads are used to inform the prior.
 
 ```{r, eval = FALSE}
-### Apply the model on the HIV data set.
-# HIVMod <- ZIDM_DSDM3( dat = otuHIV, iter = 25000, Kmax = 20, nxi_split = 5, 
-#                       theta = 1, s2 = 1, s2MH = 1e-3, MHadapt = 2500, 
-#                       thin = 1, seed = 1 )
+### Apply the model to the genus-level OTU table.
+result_EDD <- DSDM3_ZIDM( otuTab = dat_EDD$genus, Km = 10, pi_TB = 0.5, 
+                          s2_prior = 10, s2_MH = 1, theta = 0.1, 
+                          a_gamma = 1, b_gamma = 1, Kp_init = 1, 
+                          s = 200, iter = 10000, thin = 2, seed = 1 )
 ```
 
 ```{r, include=FALSE}
-# data("resultApp_vig")
-# HIVMod <- resultApp_vig$mod
-# rm(resultApp_vig)
+data( "result_EDD" )
 ```
 
-We obtain the final cluster assignment by using `finalCLUS()` function. In Table 2, we compare the cluster assignment to the observed sexual behavior and HIV infection status. We observed that the dominant bacteria in each resulting cluster aligns with the findings discussed in @noguera2016gut.
+We obtain the final cluster assignment by using `final_clus()` function. In Table 1, we compare the cluster assignment to the EDD infection status. We observed that the dominant bacteria in each resulting cluster aligns with the findings discussed in @singh2015intestinal.
 
 ```{r}
 ### Obtain the final cluster assignment for the HIV data set.
-# HIVclus <- finalCLUS( HIVMod, burn_in = 5000, seed = 1 )
+clusResult <- final_clus( resultList = result_EDD, burn_in = 2500, seed = 1 )
 ```
 
 ```{r, echo = FALSE, message=FALSE}
-# HIV_dist <- data.frame(HIVclus, sex = metaHIV[, 2], status = metaHIV[, 3]) %>%
-#   group_by(HIVclus, sex, status) %>%
-#   summarise(f = n()) %>%
-#   pivot_wider(names_from = c(sex, status), values_from = f, values_fill = 0) 
-# 
-# colnames(HIV_dist) <- c("Cluster", "Healthy: non-MSM", "HIV: non-MSM", 
-#                         "Healthy: MSM", "HIV: MSM")
-# rownames(HIV_dist) <- NULL
-# 
-# HIV_dist$Cluster <- paste0("Cluster ", HIV_dist$Cluster)
-# 
-# HIV_dist %>%
-#   xtable(caption = "Distribution of patients and sexual preferences within the resulting clusters estimated with the proposed model.") %>%
-#   xtable2kable()
-
+data.frame( SampleID = rownames( dat_EDD$genus ), clusResult ) %>%
+  inner_join( dat_EDD$metadata ) %>%
+  group_by( clusResult, Status ) %>%
+  summarise( n = n(), .groups = "drop" ) %>%
+  rename( Cluster = clusResult ) %>%
+  mutate( Cluster = paste0( "Cluster ", Cluster ) ) %>%
+  pivot_wider( names_from = Status, values_from = n, values_fill = 0 ) %>%
+  xtable::xtable( caption = "Distribution of EDD status within the resulting clusters estimated with the proposed model.",
+                  align = c( "l", "c", "c", "c" ),
+                  table.placement = NULL ) %>%
+  kableExtra::xtable2kable( include.rownames = FALSE )
 ```
-
+\newpage 
 # Reference
