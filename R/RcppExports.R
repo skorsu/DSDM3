@@ -5,40 +5,12 @@ log_pTB <- function(k, Km, pi) {
     .Call(`_DSDM3_log_pTB`, k, Km, pi)
 }
 
-log_pTPoisson <- function(k, lambda) {
-    .Call(`_DSDM3_log_pTPoisson`, k, lambda)
-}
-
-log_pGeo <- function(k, pi) {
-    .Call(`_DSDM3_log_pGeo`, k, pi)
-}
-
-log_pBNB <- function(k, a_lambda, a_pi, b_pi) {
-    .Call(`_DSDM3_log_pBNB`, k, a_lambda, a_pi, b_pi)
-}
-
 mod_fixed <- function(c_init, xi_init, z, zero_loc, Km, log_pK, Mean_vec, s2_prior, a_ar, b_ar, s2_MH_xi, gm, iter, thin, c_mat, Kp_vec, K_vec, eta_mat, xi_cube, ar_cube, s2a_perform, s2a_accept) {
     invisible(.Call(`_DSDM3_mod_fixed`, c_init, xi_init, z, zero_loc, Km, log_pK, Mean_vec, s2_prior, a_ar, b_ar, s2_MH_xi, gm, iter, thin, c_mat, Kp_vec, K_vec, eta_mat, xi_cube, ar_cube, s2a_perform, s2a_accept))
 }
 
-mod_fixed_DM_lik <- function(c_init, xi_init, z, Km, log_pK, Mean_vec, s2_prior, s2_MH_xi, gm, iter, thin, c_mat, Kp_vec, K_vec, eta_mat, xi_cube, s2a_perform, s2a_accept) {
-    invisible(.Call(`_DSDM3_mod_fixed_DM_lik`, c_init, xi_init, z, Km, log_pK, Mean_vec, s2_prior, s2_MH_xi, gm, iter, thin, c_mat, Kp_vec, K_vec, eta_mat, xi_cube, s2a_perform, s2a_accept))
-}
-
-ZIDMDM <- function(c_init, xi_init, z, zero_loc, K, log_pK, Mean_vec, s2_prior, a_ar, b_ar, s2_MH_xi, gm, iter, thin, c_mat, Kp_vec, K_vec, eta_mat, xi_cube, ar_cube, s2a_perform, s2a_accept) {
-    invisible(.Call(`_DSDM3_ZIDMDM`, c_init, xi_init, z, zero_loc, K, log_pK, Mean_vec, s2_prior, a_ar, b_ar, s2_MH_xi, gm, iter, thin, c_mat, Kp_vec, K_vec, eta_mat, xi_cube, ar_cube, s2a_perform, s2a_accept))
-}
-
-DMDM <- function(c_init, xi_init, z, K, Mean_vec, s2_prior, s2_MH_xi, gm, iter, thin, c_mat, Kp_vec, K_vec, eta_mat, xi_cube, s2a_perform, s2a_accept) {
-    invisible(.Call(`_DSDM3_DMDM`, c_init, xi_init, z, K, Mean_vec, s2_prior, s2_MH_xi, gm, iter, thin, c_mat, Kp_vec, K_vec, eta_mat, xi_cube, s2a_perform, s2a_accept))
-}
-
 logmar_data_DM <- function(zi, xi_k) {
     .Call(`_DSDM3_logmar_data_DM`, zi, xi_k)
-}
-
-mod_fixed_PYP <- function(c_init, xi_init, z, zero_loc, Km, log_pK, Mean_vec, s2_prior, a_ar, b_ar, s2_MH_xi, theta_PYP, sigma_PYP, iter, thin, c_mat, Kp_vec, xi_cube, ar_cube, s2a_perform, s2a_accept) {
-    invisible(.Call(`_DSDM3_mod_fixed_PYP`, c_init, xi_init, z, zero_loc, Km, log_pK, Mean_vec, s2_prior, a_ar, b_ar, s2_MH_xi, theta_PYP, sigma_PYP, iter, thin, c_mat, Kp_vec, xi_cube, ar_cube, s2a_perform, s2a_accept))
 }
 
 logmar_data <- function(zi, at_risk_i, xi_k) {
