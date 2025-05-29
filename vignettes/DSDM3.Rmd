@@ -24,6 +24,9 @@ In this vignette, we demonstrate how to implement the discrete sparse Dirichlet-
 
 In order to implement our package, the following packages must be installed and loaded into the R environment. To install them, use `install.packages()` with the package name.
 
+* devtools
+* Rcpp
+* RcppArmadillo
 * tidyverse
 * ggplot2
 * dirmult
