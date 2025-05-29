@@ -9,12 +9,14 @@ To use the `DSDM3` package, make sure the following R packages are installed usi
 * `devtools`
 * `Rcpp`
 * `RcppArmadillo`
+* `tidyverse`* `ggplot2`
 * `dirmult`
-* `mclustcomp`
 * `salso`
+* `mclustcomp`
+
 
 To install the `DSDM3` package from GitHub, run the following command in the R environment:
 
 ```r
-devtools::install_github("skorsu/DSDM3")
+devtools::install_github(" skorsu/DSDM3 ")
 ```
