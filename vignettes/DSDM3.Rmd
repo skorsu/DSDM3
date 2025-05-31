@@ -32,6 +32,7 @@ To implement our package, the following R packages must be installed and loaded 
 * dirmult
 * salso
 * mclustcomp
+* DSDM3
 
 If any of these packages are not already installed, you can install them using the install.packages() function. For example:
 
@@ -69,9 +70,9 @@ simdat_ZIDM <- sim_ZIDMclus( n1 = 25, n2 = 25, Jnoise = 80, Jsignal = 20,
 data( "simdat_ZIDM" )
 ```
 
-The `sim_ZIDMclus()` function requires several parameters: the number of observations in each cluster (`n1` and `n2`), the number of taxa that are not differentiated across clusters, or the noise taxa, (`Jnoise`), the number of taxa that are differentiated between clusters, or the signal taxa, (`Jsignal`), the sequencing depths for noise and signal taxa (`z_sum_noise` and `z_sum_signal`, respectively), a random seed (`seed`), and two parameters, `a` and `pAR0`, which control the behavior of at-risk and structural zeros. Specifically, `pAR0` defines the baseline probability that a zero count is considered at-risk when the expected relative abundance is zero, while `a` controls how this probability changes with abundance—smaller values (i.e., 0 < `a` < 1) make low-abundance taxa more likely to be treated as at-risk, whereas larger values (i.e., `a` > 1) make them more likely to be treated as structural zeros. In this example, we simulate 50 observations—25 for each cluster—with a total of 100 taxa, 20 of which are designated as signal taxa. The sequencing depth for each observation is set to 5,000 reads, allocated as 4,000 reads for the noise taxa and 1,000 reads for the signal taxa. The parameter `pAR0` = 0.75 specifies that when the expected marginal relative abundance of a taxon is zero, the probability of each zero count for that taxon being considered at-risk is 0.75. Additionally, with `a` = 25, zeros are more likely to be treated as structural when the expected marginal relative abundance is high. 
+The `sim_ZIDMclus()` function requires several parameters: the number of observations in each cluster (`n1` and `n2`), the number of taxa that are not differentiated across clusters, or the noise taxa, (`Jnoise`), the number of taxa that are differentiated between clusters, or the signal taxa, (`Jsignal`), the sequencing depths for noise and signal taxa (`z_sum_noise` and `z_sum_signal`, respectively), a random seed (`seed`), and two parameters, `pAR0` and `a`, which control the behavior of at-risk and structural zeros. Specifically, `pAR0` defines the baseline probability that a zero count is considered at-risk when the expected relative abundance is zero, while `a` controls how this probability changes with the relative abundances. Smaller values (i.e., 0 < `a` < 1) make low-abundance taxa more likely to be treated as at-risk, whereas larger values (i.e., `a` > 1) make them more likely to be treated as structural zeros. In this example, we simulate 50 observations (25 for each cluster ) with a total of 100 taxa, 20 of which are designated as signal taxa. The sequencing depth for each observation is set to 5,000 reads, allocated as 4,000 reads for the noise taxa and 1,000 reads for the signal taxa. The parameter `pAR0` = 0.75 specifies that when the expected marginal relative abundance of a taxon is zero, the probability of each zero count for that taxon being considered at-risk is 0.75. Additionally, with `a` = 25, zeros are more likely to be treated as structural when the expected marginal relative abundance is high. 
 
-The output from the `sim_clusDat()` function is a list consisting of three elements: (1) the simulated OTU table (`dat`), (2) the at-risk indicator (`ar`), and (3) the cluster allocation for each observation (`clus`). To visualize the simulated data (i.e., the OTU table), we can use the `vizDat()` function to create a heatmap that highlights patterns in the data. In the resulting plot, each row corresponds to an observation and each column to a taxon. The intensity of the color indicates the magnitude of the observed count—darker colors represent higher counts.
+The output from the `sim_clusDat()` function is a list consisting of three elements: (1) the simulated OTU table (`dat`), (2) the at-risk indicator (`ar`), and (3) the cluster allocation for each observation (`clus`). To visualize the simulated data (i.e., the OTU table), we can use the `vizDat()` function to create a heatmap that highlights patterns in the data. In the resulting plot, each row corresponds to an observation and each column to a taxon. The intensity of the color indicates the magnitude of the observed count with darker colors representing higher counts.
 
 ```{r}
 ### Visualize the data
@@ -101,7 +102,7 @@ result_ZIDM <- DSDM3_ZIDM( otuTab = simdat_ZIDM$dat, Km = 10, pi_TB = 0.5,
 data( "result_ZIDM" )
 ```
 
-This function requires the following inputs: the $N \times J$ OTU table (`otuTab`), where each row represents an observation and each column represents a taxon, the number of potential components (`Km`), the prior probability that a given component exists (`pi_TB`), the prior variance for the cluster concentration parameter (`s2_prior`), the variance used in the Metropolis–Hastings (MH) step when updating the cluster concentration parameter (`s2_MH`), the sparsity concentration parameter (`theta`), the parameters controlling the expected probability of being an at-risk zero (`a_gamma` and `b_gamma`), the initial number of clusters, i.e., non-empty components (`Kp_init`), the hypothetical total number of reads used to inform the prior (`s`), the number of MCMC iterations (`iter`), the thinning interval (`thin`), and the random seed (`seed`). In this example, we apply the model to the simulated data provided above (`simdat_ZIDM$dat`). The model is run for 10,000 iterations with no thinning (i.e., `thin` = 1). We set the prior variance of the cluster concentration parameter to 0.1 and the variance for the Metropolis–Hastings step to 0.01. The maximum number of components is limited to 10 (i.e., `Km` = 10). For at-risk zeros, we assume the expected probability of a zero being considered at-risk is 0.5 (i.e., `a_gamma` = `b_gamma` = 1). We also assume 500 hypothetical total reads are used to inform the prior (i.e., `s` = 500). Additionally, we initialize the model with five random clusters (i.e., `Kp_init` = 5).
+This function requires the following inputs: the $N \times J$ OTU table (`otuTab`), where each row represents an observation and each column represents a taxon, the number of potential components (`Km`), the prior probability that a given component exists (`pi_TB`), the prior variance for the cluster concentration parameter (`s2_prior`), the variance used in the Metropolis–Hastings (MH) step when updating the cluster concentration parameter (`s2_MH`), the sparsity concentration parameter (`theta`), the parameters controlling the expected probability of being an at-risk zero (`a_gamma` and `b_gamma`), the initial number of clusters, i.e., non-empty components (`Kp_init`), the hypothetical total number of reads used to inform the prior (`s`), the number of MCMC iterations (`iter`), the thinning interval (`thin`), and the random seed (`seed`). In this example, we apply the model to the simulated data provided above (`simdat_ZIDM$dat`). The model is run for 10,000 iterations with no thinning (i.e., `thin` = 1). We set the prior variance of the cluster concentration parameter to 0.1 and the variance for the Metropolis–Hastings proposal to 0.01. The maximum number of components is limited to 10 (i.e., `Km` = 10). We assume the prior probability of a zero being at-risk is 0.5 (i.e., `a_gamma` = `b_gamma` = 1). We also assume 500 hypothetical total reads are used to inform the prior (i.e., `s` = 500). Additionally, we initialize the model with five random clusters (i.e., `Kp_init` = 5).
 
 The output from the `DSDM3_ZIDM()` function is a list object. To obtain the final cluster assignment, we use the `final_clus()` function. For implementation, we need to specify the number of iterations to consider as burn-in. We utilize the `salso()` function from the `salso` package with the variation of information loss to determine the final cluster assignment [@salso].
 
@@ -112,7 +113,7 @@ clusResult <- final_clus( resultList = result_ZIDM, burn_in = 1000, seed = 10 )
 
 ## Posterior Inference
 
-Prior to performing inference on the cluster allocation, we assess model convergence by plotting the number of active clusters and the component weights across MCMC iterations, as suggested by @fruhwirth2021generalized. The `diag_plot()` function produces plots for both the number of active clusters and the component weights, using the resulting list returned by our model. As shown in Figure 2 and 3, the model appears to converge around 1,000$^{\text{th}}$ iteration.
+Prior to performing inference on the cluster allocation, we assess model convergence by plotting the number of active clusters and the component weights across MCMC iterations, as suggested by @fruhwirth2021generalized. The `diag_plot()` function produces plots for both the number of active clusters and the component weights, using the resulting list returned by our model. As shown in Figures 2 and 3, the model appears to converge around the 1,000$^{\text{th}}$ iteration.
 
 ```{r}
 ### Obtain the diagnostic plots
@@ -152,7 +153,7 @@ In this section, we apply the proposed model to the EDD dataset analyzed in the 
 data( "dat_EDD" )
 ```
 
-We then apply the proposed model to the genus-level OTU table, running the MCMC sampler for 15,000 iterations with thinning every 2 iterations. The variance of the cluster concentration parameter is set to 10, and the variance for the MH step is set to 1. The model is limited to a maximum of 10 components. For at-risk zeros, we assume the expected probability of a zero being considered at-risk is 0.5. For initialization, the model begins with a single cluster containing all samples, and we assume 200 hypothetical total reads are used to inform the prior.
+We then apply the proposed model to the genus-level OTU table, running the MCMC sampler for 15,000 iterations with thinning every 2 iterations. The variance of the cluster concentration parameter is set to 10, and the variance for the MH step is set to 1. The model is limited to a maximum of 10 components. For at-risk zeros, we assume the expected probability of a zero being considered at-risk is 0.5. The model is initiated with a single cluster containing all samples, and we assume 200 hypothetical total reads are used to inform the prior.
 
 ```{r, eval = FALSE}
 ### Apply the model to the genus-level OTU table.
@@ -166,7 +167,7 @@ result_EDD <- DSDM3_ZIDM( otuTab = dat_EDD$genus, Km = 10, pi_TB = 0.5,
 data( "result_EDD" )
 ```
 
-We obtain the final cluster assignment by using `final_clus()` function. In Table 1, we compare the cluster assignment to the EDD infection status. We observed that the dominant bacteria in each resulting cluster aligns with the findings discussed in @singh2015intestinal.
+We obtain the final cluster assignment by using `final_clus()` function. In Table 1, we compare the cluster assignment to the EDD status. We observed that the dominant bacteria in each resulting cluster aligns with the findings discussed in @singh2015intestinal.
 
 ```{r}
 ### Obtain the final cluster assignment for the HIV data set.
@@ -187,4 +188,4 @@ data.frame( SampleID = rownames( dat_EDD$genus ), clusResult ) %>%
   kableExtra::xtable2kable( include.rownames = FALSE )
 ```
 \newpage 
-# Reference
+# References
